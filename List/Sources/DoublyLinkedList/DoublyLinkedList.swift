@@ -6,109 +6,221 @@
 //  Copyright © 2020 Mohamed Afsar. All rights reserved.
 //
 
-// Reference: https://medium.com/swift-algorithms-data-structures/building-linked-lists-with-swift-1812c747dad3
-
-public final class DoublyLinkedList<T: Equatable> {
+open class DoublyLinkedList<T: Equatable>: Listable, ExpressibleByArrayLiteral {
     // MARK: Public IVars
-    public var count: UInt {
-        return counter
-    }
-    public var isEmpty: Bool {
-        return self.counter == 0
-    }
+    public var first: T? { return self.head.element }
+    public var last: T? { return self.tail.element }
+    public var count: Int { return counter }
+    public var isEmpty: Bool { return self.counter == 0 }
     
     // MARK: Private IVars
     private var head = LLNode<T>()
-    private var counter: UInt = 0
+    private var tail: LLNode<T>
+    private var counter: Int = 0
 
     // MARK: Initialization
-    public init() { }
-    
-    public init(_ key: T) {
-        self.append(key)
+    required public init() {
+        self.tail = self.head
     }
     
-    public init(_ keys: [T]) {
-        self.append(keys)
+    required public convenience init(arrayLiteral elements: T...) {
+        self.init()
+        self.append(elements)
     }
     
-    // MARK: Deinitialization
-    deinit {
-        self.removeAll()
-    }
-}
-
-// MARK: Public Functions
-public extension DoublyLinkedList {
-    func append(_ keys: [T]) {
-        keys.forEach { self.append($0) }
+    public convenience init(_ element: T) {
+        self.init()
+        self.append(element)
     }
     
-    func append(_ key: T) {
+    public convenience init(_ elements: [T]) {
+        self.init()
+        self.append(elements)
+    }
+    
+    // MARK: Open Manipulating Functions
+    open func append(_ elements: [T]) {
+        elements.forEach { self.append($0) }
+    }
+    
+    open func append(_ element: T) {
         self.counter += 1
-        guard self.head.key != nil else {
-            self.head.key = key
-            return
+        let newNode = LLNode<T>()
+        newNode.element = element
+        if let _ = self.tail.element {
+            newNode.previous = self.tail
+            self.tail.next = newNode
+            self.tail = newNode
         }
-        var current: LLNode? = self.head
-        while current != nil {
-            if current!.next == nil {
-                let childToUse = LLNode<T>()
-                childToUse.key = key
-                childToUse.previous = current
-                current!.next = childToUse
-                break
-            }
-            else {
-                current = current?.next
-            }
+        else {
+            self.head = newNode
+            self.tail = self.head
+        }
+    }
+    
+    open func prepend(_ elements: [T]) {
+        elements.forEach { self.prepend($0) }
+    }
+    
+    open func prepend(_ element: T) {
+        self.counter += 1
+        let newNode = LLNode<T>()
+        newNode.element = element
+        if let _ = self.head.element {
+            newNode.next = self.head
+            self.head.previous = newNode
+            self.head = newNode
+        }
+        else {
+            self.head = newNode
+            self.tail = self.head
         }
     }
     
     @discardableResult
-    func insert(_ key: T, at idx: UInt) -> Bool {
+    open func insert(_ element: T, at idx: Int) -> Bool {
         guard idx >= 0 && idx <= self.counter else {
             return false
         }
-        self.counter += 1
-        var trailer: LLNode<T>?
-        var current: LLNode<T>? = self.head
-        var listIndex: UInt = 0
-        
-        let newNode = LLNode<T>()
-        newNode.key = key
-        
-        // Determine if the insertion is at the head
-        guard idx > listIndex else {
-            newNode.next = current
-            current?.previous = newNode
-            self.head = newNode
+        guard idx > 0 else {
+            self.prepend(element)
+            return true
+        }
+        guard idx < self.counter else {
+            self.append(element)
             return true
         }
         
+        self.counter += 1
+        var current: LLNode<T>? = self.head.next
+        var listIndex: Int = 1
         while current != nil {
             if idx == listIndex {
-                trailer!.next = newNode
-                newNode.previous = trailer
+                let newNode = LLNode<T>()
+                newNode.element = element
+                let leading = current!.previous
+                leading?.next = newNode
+                newNode.previous = leading
                 newNode.next = current
                 current!.previous = newNode
-                return true
+                break
             }
-            // Update assignments
-            trailer = current
             current = current!.next
             listIndex += 1
         }
-        newNode.previous = trailer!
-        trailer!.next = newNode
+        return true
+    }
+        
+    open func removeAll() {
+        self.counter = 0
+        var current: LLNode<T>? = self.head
+        while current != nil {
+            let item = current
+            current = item!.next
+            item!.reset()
+        }
+        self.tail = self.head
+    }
+    
+    @discardableResult
+    open func removeFirst() -> Bool {
+        guard self.counter > 0 else { return false }
+        self.counter -= 1
+        if let next = self.head.next {
+            self.head.reset()
+            self.head = next
+            self.head.previous = nil
+        }
+        else {
+            self.head.reset()
+        }
         return true
     }
     
-    func index(_ key: T) -> UInt? {
-        var current: LLNode<T>? = self.head
-        var idx: UInt = 0
+    @discardableResult
+    open func removeLast() -> Bool {
+        guard self.counter > 0 else { return false }
+        self.counter -= 1
+        if let previous = self.tail.previous {
+            self.tail.reset()
+            self.tail = previous
+            self.tail.next = nil
+        }
+        else {
+            self.tail.reset()
+        }
+        return true
+    }
+    
+    @discardableResult
+    public func remove(_ element: T) -> Bool {
+        guard self.counter > 0 else {
+            return false
+        }
+        guard self.head.element != element else {
+            return self.removeFirst()
+        }
+        
+        var current: LLNode<T>? = self.head.next
+        var listIndex: Int = 1
         while current != nil {
-            if key == current!.key {
+            if listIndex == (self.count - 1), current!.element == element {
+                return self.removeLast()
+            }
+            else {
+                if current!.element == element {
+                    self.counter -= 1
+                    let leading = current!.previous
+                    let trailing = current!.next
+                    current!.reset()
+                    leading?.next = trailing
+                    trailing?.previous = leading
+                    return true
+                }
+                current = current!.next
+                listIndex += 1
+            }
+        }
+        return false
+    }
+    
+    @discardableResult
+    open func remove(at idx: Int) -> Bool {
+        // Index conditions
+        guard idx >= 0 && idx <= (self.counter - 1) else {
+            return false
+        }
+        guard idx > 0 else {
+            return self.removeFirst()
+        }
+        guard idx < (self.counter - 1) else {
+            return self.removeLast()
+        }
+        
+        self.counter -= 1
+        var current: LLNode<T>? = self.head.next
+        var listIndex: Int = 1
+        while current != nil {
+            if listIndex == idx {
+                let leading = current!.previous
+                let trailing = current!.next
+                current!.reset()
+                leading?.next = trailing
+                trailing?.previous = leading
+                break
+            }
+            current = current!.next
+            listIndex += 1
+        }
+        return true
+    }
+    
+    // MARK: Open Reading Functions
+    open func index(_ element: T) -> Int? {
+        var current: LLNode<T>? = self.head
+        var idx: Int = 0
+        while current != nil {
+            if element == current!.element {
                 return idx
             }
             current = current!.next
@@ -117,91 +229,93 @@ public extension DoublyLinkedList {
         return nil
     }
     
-    func removeAll() {
-        self.counter = 0
-        var current: LLNode<T>? = self.head
-        while current != nil {
-            let item = current
-            current = item!.next
-            item!.reset()
-        }
+    open subscript(idx: Int) -> T? {
+       get { return find(at: idx) }
     }
     
-    @discardableResult
-    func remove(at idx: UInt) -> Bool {
-        // Index conditions
-        guard idx >= 0 && idx <= (self.counter - 1) else {
-            return false
-        }
-        self.counter -= 1
-        var trailer: LLNode<T>?
-        var current: LLNode<T>? = self.head
-        var listIndex: UInt = 0
-        
-        // Determine if the removal is at the head
-        guard idx > listIndex else {
-            if let next = current?.next {
-                self.head = next
-            }
-            else {
-                self.head.key = nil
-            }
-            return true
-        }
-        // Iterate through remaining items
-        while current != nil {
-            if listIndex == idx {
-                // Redirect the trailer and next pointers
-                let nextItem = current!.next
-                current!.reset()
-                trailer!.next = nextItem
-                nextItem?.previous = trailer!
-                break
-            }
-            // Update assignments
-            trailer = current
-            current = current?.next
-            listIndex += 1
-        }
-        return true
-    }
-    
-    subscript(idx: UInt) -> T? {
-       get {
-          return find(at: idx)
-       }
-    }
-    
-    func find(at idx: UInt) -> T? {
+    open func find(at idx: Int) -> T? {
         guard idx >= 0 && idx <= (self.counter - 1) else {
             return nil
         }
         var current: LLNode<T> = self.head
-        var i: UInt = 0 // Cycle through elements
+        var i: Int = 0
         while (idx != i) {
             current = current.next!
             i += 1
         }
-        return current.key
+        return current.element
     }
     
-    func printAllKeys(reversed: Bool = false) {
-        var trail: LLNode<T>?
-        var current: LLNode? = self.head
-        while current != nil {
-            if !reversed {
-                print("Link item is: \(String(describing: current!.key))")
-            }
-            trail = current
-            current = current!.next
-        }
-        
+    open func forEach(reversed: Bool = false, _ body: ((T) -> Void)) {
         if reversed {
-            print("REVERSED:")
-            while trail != nil {
-                print("Link item is: \(String(describing: trail!.key))")
-                trail = trail!.previous
+            var current: LLNode? = self.tail
+            while let val = current?.element {
+                body(val)
+                current = current!.previous
             }
         }
+        else {
+            var current: LLNode? = self.head
+            while let val = current?.element {
+                body(val)
+                current = current!.next
+            }
+        }
+    }
+    
+    open func enumerateObjects(reversed: Bool = false, _ body: ((_ obj: T, _ idx: Int, _ stop: inout Bool) -> Void)) {
+        var stop = false
+        if reversed {
+            var idx = self.counter - 1
+            var current: LLNode? = self.tail
+            while let val = current?.element, !stop {
+                body(val, idx, &stop)
+                current = current!.previous
+                idx -= 1
+            }
+        }
+        else {
+            var idx = 0
+            var current: LLNode? = self.head
+            while let val = current?.element, !stop {
+                body(val, idx, &stop)
+                current = current!.next
+                idx += 1
+            }
+        }
+    }
+
+    open func printAllKeys(reversed: Bool = false) {
+        if reversed {
+            var current: LLNode? = self.tail
+            while current != nil {
+                print("Link item is: \(String(describing: current!.element))")
+                current = current!.previous
+            }
+        }
+        else {
+            var current: LLNode? = self.head
+            while current != nil {
+                print("Link item is: \(String(describing: current!.element))")
+                current = current!.next
+            }
+        }
+    }
+    
+    // MARK: Deinitialization
+    deinit {
+        self.removeAll()
+    }
+}
+
+extension DoublyLinkedList : CustomStringConvertible {
+    public var description: String {
+        let separator = ", "
+        var desc = "[ "
+        self.forEach { desc += String(describing: $0) + separator }
+        let range = desc.index(desc.endIndex, offsetBy: -2)..<desc.endIndex
+        desc = desc.replacingOccurrences(of: separator, with: "", range: range)
+        desc += " ]"
+        return desc
     }
 }

@@ -7,12 +7,12 @@
 //
 
 internal final class LLNode<T> {
-    internal var key: T?
+    internal var element: T?
     internal var previous: LLNode?
     internal var next: LLNode?
     
     func reset() {
-        self.key = nil
+        self.element = nil
         self.previous = nil
         self.next = nil
     }
