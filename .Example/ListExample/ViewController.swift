@@ -12,6 +12,7 @@ import DoublyLinkedList
 class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = .white
 
         let list = DoublyLinkedList<String>()
         
@@ -64,11 +65,15 @@ class ViewController: UIViewController {
         list.printAllKeys(reversed: true)
         
         // Find
-        print("list.find(at: 3)?.key: \(String(describing: list.find(at: 3)))")
-        print("list.find(at: 0)?.key: \(String(describing: list.find(at: 0)))")
-        print("list[5]?.key: \(String(describing: list[5]))")
+        print("list.find(at: 3): \(String(describing: list.find(at: 3)))")
+        print("list.find(at: 0): \(String(describing: list.find(at: 0)))")
+        print("list[5]: \(String(describing: list[5]))")
+        print("list[6]: \(String(describing: list[6]))")
         
-        print("list[6]?.key: \(String(describing: list[6]))")
+        // Subscript Set
+        list[6] = six
+        print("list[6]: \(String(describing: list[6]))")
+        list.remove(six)
         
         // Append
         list.append("six")
@@ -83,6 +88,42 @@ class ViewController: UIViewController {
         print("4.")
         list.printAllKeys()
         list.printAllKeys(reversed: true)
+        
+        //////////////////////////////////////////////////////
+        
+        // Simulate - Thread Crash
+        /*
+        var outerIo = 0
+        while outerIo < 100 {
+            list.append(one)
+            outerIo += 1
+        }
+        
+        
+        var outerI = 0
+        while outerI < 100 {
+            let qosS: [DispatchQoS] = [.background, .utility, .`default`, .userInitiated, .userInteractive, .unspecified]
+
+            
+            let name = "queue\(outerI)"
+            let qos = qosS[Int.random(in: 0..<qosS.count)]
+            
+            let queue = DispatchQueue(label: name, qos: qos, attributes: .concurrent)
+            queue.async {
+                print("\(name): \(String(describing: qos))")
+                var i = 0
+                while i < 100 {
+                    list.remove(at: 2)
+                    list.find(at: 2)
+                    list.append("Hello")
+                    list.insert("Inserted", at: 5)
+                    i += 1
+                }
+            }
+            outerI += 1
+        }
+        */
+        //////////////////////////////////////////////////////
     }
 }
 

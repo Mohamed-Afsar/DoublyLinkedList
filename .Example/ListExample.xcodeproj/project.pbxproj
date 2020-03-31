@@ -17,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6882C3F32431F84E00A429AA /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		689B065A242BB3BA0097AFF9 /* DoublyLinkedList */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DoublyLinkedList; path = ..; sourceTree = "<group>"; };
 		68DB70DF242B6CFD007FFABF /* ListExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ListExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		68DB70E2242B6CFD007FFABF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -43,6 +44,7 @@
 		68A0237E242B85EF00FDADF5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6882C3F32431F84E00A429AA /* libicucore.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

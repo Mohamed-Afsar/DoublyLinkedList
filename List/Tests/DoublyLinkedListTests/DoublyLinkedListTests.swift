@@ -40,21 +40,21 @@ final class DoublyLinkedListTests: XCTestCase {
         XCTAssertEqual(list.last, one)
         
         // RemoveFirst - RemoveLast
-        XCTAssertEqual(list.removeFirst(), true)
-        XCTAssertEqual(list.removeLast(), false)
+        list.removeFirst()
+        list.removeLast()
         XCTAssertEqual(list.count, 0)
         
         // Append
         list.append([one, two, three])
         
         // Remove
-        XCTAssertEqual(list.remove(at: 1), true)
+        list.remove(at: 1)
         XCTAssertEqual(list.first, one)
         XCTAssertEqual(list.last, three)
         XCTAssertEqual(list.count, 2)
         
-        XCTAssertEqual(list.remove(at: 0), true)
-        XCTAssertEqual(list.remove(at: 0), true)
+        list.remove(at: 0)
+        list.remove(at: 0)
         XCTAssertEqual(list.count, 0)
         XCTAssertEqual(list.isEmpty, true)
         
@@ -63,10 +63,10 @@ final class DoublyLinkedListTests: XCTestCase {
 
         // Append
         list.append([one, two, three])
-        XCTAssertEqual(list.removeLast(), true)
-        XCTAssertEqual(list.removeLast(), true)
-        XCTAssertEqual(list.removeLast(), true)
-        XCTAssertEqual(list.removeLast(), false)
+        list.removeLast()
+        list.removeLast()
+        list.removeLast()
+        list.removeLast()
         XCTAssertEqual(list.count, 0)
         
         // First - Last
@@ -80,13 +80,13 @@ final class DoublyLinkedListTests: XCTestCase {
         XCTAssertEqual(list.isEmpty, false)
         
        // Insert
-        XCTAssertEqual(list.insert(zero, at: 0), true)
+        list.insert(zero, at: 0)
         
-        XCTAssertEqual(list.insert(six, at: 10), false)
-        XCTAssertEqual(list.insert(six, at: 6), true)
+        list.insert(six, at: 10)
+        list.insert(six, at: 6)
         
         let twoPointOne = "two.one"
-        XCTAssertEqual(list.insert(twoPointOne, at: 2), true)
+        list.insert(twoPointOne, at: 2)
         print("1.")
         list.printAllKeys()
         print("Reversed")
@@ -99,11 +99,11 @@ final class DoublyLinkedListTests: XCTestCase {
         XCTAssertEqual(list.index(minusOne), nil)
         
         // Remove
-        XCTAssertEqual(list.remove(at: 2), true)
+        list.remove(at: 2)
         XCTAssertEqual(list.count, 7)
         
-        XCTAssertEqual(list.remove(at: 7), false)
-        XCTAssertEqual(list.remove(at: 6), true)
+        list.remove(at: 7)
+        list.remove(at: 6)
         print("2.")
         list.printAllKeys()
         print("Reversed")
@@ -113,8 +113,12 @@ final class DoublyLinkedListTests: XCTestCase {
         XCTAssertEqual(list.find(at: 3), three)
         XCTAssertEqual(list.find(at: 0), zero)
         XCTAssertEqual(list[5], five)
-        
         XCTAssertEqual(list[6], nil)
+        
+        // Subscript Set
+        list[6] = six
+        XCTAssertEqual(list[6], six)
+        list.remove(six)
         
         // Append
         list.append(six)
@@ -157,11 +161,11 @@ final class DoublyLinkedListTests: XCTestCase {
         list.printAllKeys()
         
         // RemoveObj
-        XCTAssertEqual(list.remove(minusOne), true)
-        XCTAssertEqual(list.remove("Hello"), false)
+        list.remove(minusOne)
+        list.remove("Hello")
         XCTAssertEqual(list[0], zero)
         XCTAssertEqual(list[6], six)
-        XCTAssertEqual(list.remove(six), true)
+        list.remove(six)
         XCTAssertEqual(list.count, 6)
         
         // RemoveAll
@@ -178,6 +182,42 @@ final class DoublyLinkedListTests: XCTestCase {
         let list3: DoublyLinkedList<String> = ["X", "Y", "Z"]
         print("list2: \(list2)")
         print("list3: \(list3)")
+        
+        //////////////////////////////////////////////////////
+        
+        // Simulate - Thread Crash
+        /*
+        var outerIo = 0
+        while outerIo < 100 {
+            list.append(one)
+            outerIo += 1
+        }
+        
+        
+        var outerI = 0
+        while outerI < 100 {
+            let qosS: [DispatchQoS] = [.background, .utility, .`default`, .userInitiated, .userInteractive, .unspecified]
+
+            
+            let name = "queue\(outerI)"
+            let qos = qosS[Int.random(in: 0..<qosS.count)]
+            
+            let queue = DispatchQueue(label: name, qos: qos, attributes: .concurrent)
+            queue.async {
+                print("\(name): \(String(describing: qos))")
+                var i = 0
+                while i < 100 {
+                    list.remove(at: 2)
+                    list.find(at: 2)
+                    list.append("Hello")
+                    list.insert("Inserted", at: 5)
+                    i += 1
+                }
+            }
+            outerI += 1
+        }
+        */
+        //////////////////////////////////////////////////////
     }
 
     func testDeinit() {

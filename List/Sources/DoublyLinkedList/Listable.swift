@@ -19,11 +19,9 @@ public protocol Listable {
     
     // Functions
     func append(_ key: E) // Append an element
-    @discardableResult
-    func insert(_ key: E, at idx: Int) -> Bool // Insert an element
-    @discardableResult
-    func remove(at idx: Int) -> Bool // Remove element from given index
-    func remove(_ key: E) -> Bool // Removes given element
+    func insert(_ key: E, at idx: Int) // Insert an element
+    func remove(at idx: Int) // Remove element from given index
+    func remove(_ key: E) // Removes given element
     func index(_ key: E) -> Int? // Index of given element
     func find(at idx: Int) -> E? // Element from given index
     func forEach(reversed: Bool, _ body: ((E) -> Void)) // Iteration
