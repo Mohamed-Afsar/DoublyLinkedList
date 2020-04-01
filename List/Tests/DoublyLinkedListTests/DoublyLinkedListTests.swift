@@ -114,11 +114,18 @@ final class DoublyLinkedListTests: XCTestCase {
         XCTAssertEqual(list.find(at: 0), zero)
         XCTAssertEqual(list[5], five)
         XCTAssertEqual(list[6], nil)
-        
+                
         // Subscript Set
-        list[6] = six
-        XCTAssertEqual(list[6], six)
-        list.remove(six)
+        list[5] = six
+        XCTAssertEqual(list[5], six)
+        
+        // Replace
+        list.replace(at: 5, five)
+        XCTAssertEqual(list.find(at: 5), five)
+        list.replace(at: 0, six)
+        XCTAssertEqual(list[0], six)
+        list[0] = zero
+        XCTAssertEqual(list[0], zero)
         
         // Append
         list.append(six)

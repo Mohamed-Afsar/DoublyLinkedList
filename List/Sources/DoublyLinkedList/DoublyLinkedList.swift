@@ -8,15 +8,13 @@
 
 open class DoublyLinkedList<T: Equatable>: Listable, ExpressibleByArrayLiteral, CustomStringConvertible {
     // MARK: Open IVars
-    open var first: T? { return self.head.element }
-    open var last: T? { return self.tail.element }
-    open var count: Int { return counter }
-    open var isEmpty: Bool { return self.counter == 0 }
+    open var first: T? { self.head.element }
+    open var last: T? { self.tail.element }
+    open var count: Int { self.counter }
+    open var isEmpty: Bool { self.counter == 0 }
     
     // CustomStringConvertible Conformance
-    open var description: String {
-        return self._description()
-    }
+    open var description: String { self._description() }
     
     // MARK: Private IVars
     private var head = LLNode<T>()
@@ -60,10 +58,14 @@ open class DoublyLinkedList<T: Equatable>: Listable, ExpressibleByArrayLiteral, 
         self._prepend(element)
     }
     
+    open func replace(at idx: Int, _ element: T) {
+        self._replace(at: idx, element)
+    }
+    
     open func insert(_ element: T, at idx: Int) {
         self._insert(element, at: idx)
     }
-        
+
     open func removeAll() {
         self._removeAll()
     }
@@ -90,9 +92,7 @@ open class DoublyLinkedList<T: Equatable>: Listable, ExpressibleByArrayLiteral, 
     }
     
     open subscript(idx: Int) -> T? {
-        get {
-            return self._getSubscript(idx: idx)
-        }
+        get { self._getSubscript(idx: idx) }
         set {
             guard let newValue = newValue else { return }
             self._setSubscript(idx, newValue)
@@ -158,6 +158,20 @@ private extension DoublyLinkedList {
         else {
             self.head = newNode
             self.tail = self.head
+        }
+    }
+    
+    func _replace(at idx: Int, _ element: T) {
+        guard idx >= 0 && idx < self.counter else { return }
+        var current: LLNode<T>? = self.head
+        var listIndex: Int = 0
+        while current != nil {
+            if idx == listIndex {
+                current!.element = element
+                break
+            }
+            current = current!.next
+            listIndex += 1
         }
     }
     
@@ -238,7 +252,7 @@ private extension DoublyLinkedList {
         while current != nil {
             if listIndex == (self.counter - 1), current!.element == element {
                 self._removeLast()
-                return
+                break
             }
             else {
                 if current!.element == element {
@@ -300,11 +314,11 @@ private extension DoublyLinkedList {
     }
     
     func _getSubscript(idx: Int) -> T? {
-        return self._find(at: idx)
+        self._find(at: idx)
     }
     
     func _setSubscript(_ idx: Int, _ element: T) {
-        self._insert(element, at: idx)
+        self._replace(at: idx, element)
     }
     
     func _find(at idx: Int) -> T? {
